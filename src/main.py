@@ -91,7 +91,8 @@ def create_chart(dataArr, title, xlabel, ylabel, yscale="linear", base=None):
     now_time = datetime.now()
 
     dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, f"../report/{title}_chart_{now_time}.png")
+    filename = os.path.join(
+        dirname, f"../report/bst-list/{title}_chart_{now_time}.png")
 
     try:
         plotter.savefig(filename)
@@ -105,7 +106,7 @@ def create_table(sizes, listTimes, treeTimes, title):
 
     dirname = os.path.dirname(__file__)
     filename = os.path.join(
-        dirname, f"../report/{title}_table_{now_time}_.txt")
+        dirname, f"../report/bst-list/{title}_table_{now_time}_.txt")
 
     with open(filename, 'w') as f:
         table = [["n", "list", "bst"]]
@@ -179,8 +180,6 @@ def measure_list_vs_bst():
     #     2
     # )
 
-# measure_list_vs_bst()
-
 
 def measure_bst_vs_avl_heights():
     data = prepare_data(SIZES_TO_MEASURE, REPEAT_COUNT)
@@ -210,8 +209,7 @@ def measure_bst_vs_avl_heights():
         print(f"size: {size}, bst: {bstHeightAvg}, avl: {avlHeightAvg}")
 
     barWidth = 0.25
-
-    fig = plotter.subplots(figsize=(16, 8))
+    plotter.subplots(figsize=(16, 8))
 
     br1 = np.arange(len(avlHeights))
     br2 = [x + barWidth for x in br1]
@@ -229,10 +227,12 @@ def measure_bst_vs_avl_heights():
 
     plotter.legend()
 
+    title = "avl_bst_heights"
+
     now_time = datetime.now()
     dirname = os.path.dirname(__file__)
     filename = os.path.join(
-        dirname, f"../report/avl_bst_heights_chart_{now_time}.png")
+        dirname, f"../report/bst-avl/{title}_chart_{now_time}.png")
 
     try:
         plotter.savefig(filename)
@@ -240,5 +240,17 @@ def measure_bst_vs_avl_heights():
         pass
     plotter.close(None)
 
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(
+        dirname, f"../report/bst-avl/{title}_table_{now_time}_.txt")
 
+    with open(filename, 'w') as f:
+        table = [["n", "bst height", "avl height"]]
+        for i in range(len(SIZES_TO_MEASURE)):
+            table.append([SIZES_TO_MEASURE[i], bstHeights[i], avlHeights[i]])
+        f.write(tabulate(table, headers="firstrow"))
+        f.close()
+
+
+measure_list_vs_bst()
 measure_bst_vs_avl_heights()
