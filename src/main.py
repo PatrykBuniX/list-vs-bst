@@ -1,11 +1,13 @@
 import list as listTools
 import tree as treeTools
+import avl as avlTools
 from data import generate_random_array
 from time import perf_counter
 import matplotlib.pyplot as plotter
 from datetime import datetime
 from tabulate import tabulate
 import os
+import numpy as np
 
 REPEAT_COUNT = 10
 SIZES_TO_MEASURE = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
@@ -114,7 +116,7 @@ def create_table(sizes, listTimes, treeTimes, title):
         f.close()
 
 
-def measure():
+def measure_list_vs_bst():
     data = prepare_data(SIZES_TO_MEASURE, REPEAT_COUNT)
     print('measure list...')
 
@@ -122,7 +124,7 @@ def measure():
                                                                                 listTools.construct_node_list, listTools.find_node, listTools.remove_node)
     print('measure tree...')
     treeSizes, treeCreationTimes, treeSearchTimes, treeDeleteTimes = do_measure(data,
-                                                                                treeTools.construct_node_tree, treeTools.find_node, treeTools.remove_node, "reversed")
+                                                                                treeTools.construct_bst_tree, treeTools.find_node, treeTools.remove_node, "reversed")
 
     create_table(listSizes, listCreationTimes,
                  treeCreationTimes, "Tworzenie struktury")
@@ -177,21 +179,66 @@ def measure():
     #     2
     # )
 
+# measure_list_vs_bst()
 
-measure()
-# tree
-# root = treeTools.construct_node_tree([2, 5, 2, 1, 7, 9, 3, 4, 6, 8])
-# foundTreeItem = treeTools.search(root, 4)
-# print(f"found item in tree {foundTreeItem}")
 
-# print("Inorder traversal:")
-# treeTools.inorder(root)
-# print()
+def measure_bst_vs_avl_heights():
+    data = prepare_data(SIZES_TO_MEASURE, REPEAT_COUNT)
+    bstHeights = []
+    avlHeights = []
 
-# print("Postorder traversal:")
-# treeTools.postorder(root)
-# print()
+    for size in SIZES_TO_MEASURE:
+        bstScores = []
+        avlScores = []
+        for i in range(REPEAT_COUNT):
+            dataArr = data[size][i]
+            bstHead = treeTools.construct_bst_tree(dataArr)
+            avlHead = avlTools.construct_avl_tree(dataArr)
 
-# print("Preorder traversal:")
-# treeTools.preorder(root)
-# print()
+            bstHeight = treeTools.get_height(bstHead)
+            avlHeight = avlTools.get_height(avlHead)
+
+            bstScores.append(bstHeight)
+            avlScores.append(avlHeight)
+
+        bstHeightAvg = sum(bstScores) // len(bstScores)
+        bstHeights.append(bstHeightAvg)
+
+        avlHeightAvg = sum(avlScores) // len(avlScores)
+        avlHeights.append(avlHeightAvg)
+
+        print(f"size: {size}, bst: {bstHeightAvg}, avl: {avlHeightAvg}")
+
+    barWidth = 0.25
+
+    fig = plotter.subplots(figsize=(16, 8))
+
+    br1 = np.arange(len(avlHeights))
+    br2 = [x + barWidth for x in br1]
+
+    plotter.bar(br1, avlHeights, color='lightgreen',
+                width=barWidth, label='AVL')
+    plotter.bar(br2, bstHeights, color='green',
+                width=barWidth, label='BST')
+
+    plotter.title("Porównanie wysokość BST i AVL")
+    plotter.xlabel('Liczba elementów')
+    plotter.ylabel('Wysokość drzewa')
+    plotter.xticks([r + barWidth for r in range(len(avlHeights))],
+                   map(lambda x: f"{x//1000}k", SIZES_TO_MEASURE))
+
+    plotter.legend()
+
+    now_time = datetime.now()
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(
+        dirname, f"../report/avl_bst_heights_chart_{now_time}.png")
+
+    try:
+        plotter.savefig(filename)
+    except FileExistsError:
+        pass
+    plotter.close(None)
+
+
+measure_bst_vs_avl_heights()

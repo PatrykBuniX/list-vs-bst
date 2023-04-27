@@ -1,3 +1,6 @@
+from data import generate_random_array
+
+
 class Node:
     def __init__(self, value=None):
         self.value = value
@@ -17,11 +20,22 @@ def __insert(node, value):
     return node
 
 
-def construct_node_tree(arr):
+def construct_bst_tree(arr):
     root = None
     for i in range(len(arr)):
         root = __insert(root, arr[i])
     return root
+
+
+def get_height(root):
+
+    if root is None:
+        return 0
+
+    leftChild = get_height(root.left)
+    rightChild = get_height(root.right)
+
+    return max(leftChild, rightChild) + 1
 
 
 def remove_node(root, value):
