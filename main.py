@@ -1,0 +1,189 @@
+import list as listTools
+import tree as treeTools
+from data import generate_random_array
+from time import perf_counter
+import matplotlib.pyplot as plotter
+from datetime import datetime
+from tabulate import tabulate
+
+REPEAT_COUNT = 10
+SIZES_TO_MEASURE = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
+                    10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000]
+
+
+def prepare_data(sizesToMeasure=SIZES_TO_MEASURE, repeatCount=REPEAT_COUNT):
+    data = {}
+    for size in sizesToMeasure:
+        data[size] = {}
+        for i in range(repeatCount):
+            randomIntArr = generate_random_array(0, size, size)
+            data[size][i] = randomIntArr
+
+    return data
+
+
+def do_measure(data, create_structure, find_node, remove_node, removeOrder=None, sizesToMeasure=SIZES_TO_MEASURE, repeatCount=REPEAT_COUNT):
+    creationTimeData = []
+    searchTimeData = []
+    deleteTimeData = []
+    sizeData = []
+    for size in sizesToMeasure:
+        sizeData.append(size)
+        creationScores = []
+        searchScores = []
+        deleteScores = []
+        for i in range(repeatCount):
+            dataArr = data[size][i]
+            # measure creation time
+            cstart = perf_counter()
+            head = create_structure(dataArr)
+            cstop = perf_counter()
+            creationTime = cstop - cstart
+            creationScores.append(creationTime)
+            print(
+                f"\tcreation time of {size} size: {round(creationTime, 8)}s")
+
+            # measure search time
+            sstart = perf_counter()
+            for item in dataArr:
+                find_node(head, item)
+            sstop = perf_counter()
+            searchTime = sstop - sstart
+            searchScores.append(searchTime)
+            print(
+                f"\tsearch time of {len(dataArr)} size: {round(searchTime, 8)}s")
+
+            # measure delete time
+            sortedData = reversed(
+                dataArr) if removeOrder == "reversed" else sorted(dataArr)
+            dstart = perf_counter()
+            for item in sortedData:
+                remove_node(head, item)
+            dstop = perf_counter()
+            deleteTime = dstop - dstart
+            deleteScores.append(deleteTime)
+            print(f"\tdeletion time of {size} size: {round(deleteTime, 8)}s")
+
+        creationTimeData.append(sum(creationScores) / len(creationScores))
+        searchTimeData.append(sum(searchScores) / len(searchScores))
+        deleteTimeData.append(sum(deleteScores) / len(deleteScores))
+
+    return sizeData, creationTimeData, searchTimeData, deleteTimeData
+
+
+def create_chart(dataArr, title, xlabel, ylabel, yscale="linear", base=None):
+    for item in dataArr:
+        plotter.plot(item["xdata"], item["ydata"],
+                     color=item["color"], label=item["label"])
+
+    plotter.title(title)
+    plotter.xlabel(xlabel)
+    plotter.ylabel(ylabel)
+    if base:
+        plotter.yscale(yscale, base=base)
+    else:
+        plotter.yscale(yscale)
+    plotter.grid()
+    plotter.legend()
+    now_time = datetime.now()
+
+    try:
+        plotter.savefig(
+            f"{title}_chart_{now_time}.png")
+    except FileExistsError:
+        pass
+    plotter.close(None)
+
+
+def create_table(sizes, listTimes, treeTimes, title):
+    now_time = datetime.now()
+    with open(f"{title}_table_{now_time}_.txt", 'w') as f:
+        table = [["n", "list", "bst"]]
+        for i in range(len(sizes)):
+            table.append([round(sizes[i], 8), round(
+                listTimes[i], 8), round(treeTimes[i], 8)])
+        f.write(tabulate(table, headers="firstrow"))
+        f.close()
+
+
+def measure():
+    data = prepare_data(SIZES_TO_MEASURE, REPEAT_COUNT)
+    print('measure list...')
+
+    listSizes, listCreationTimes, listSearchTimes, listDeleteTimes = do_measure(data,
+                                                                                listTools.construct_node_list, listTools.find_node, listTools.remove_node)
+    print('measure tree...')
+    treeSizes, treeCreationTimes, treeSearchTimes, treeDeleteTimes = do_measure(data,
+                                                                                treeTools.construct_node_tree, treeTools.find_node, treeTools.remove_node, "reversed")
+
+    create_table(listSizes, listCreationTimes,
+                 treeCreationTimes, "Tworzenie struktury")
+    create_chart([
+        {"xdata": listSizes, "ydata": listCreationTimes,
+            "color": "red", "label": "lista"},
+        {"xdata": treeSizes, "ydata": treeCreationTimes,
+            "color": "green", "label": "drzewo"}
+    ],
+        "Tworzenie struktury",
+        "liczba elementów",
+        "czas [s]"
+    )
+
+    create_table(listSizes, listSearchTimes,
+                 treeSearchTimes, "Wyszukiwanie elementów")
+    create_chart([
+        {"xdata": listSizes, "ydata": listSearchTimes,
+            "color": "red", "label": "lista"},
+        {"xdata": treeSizes, "ydata": treeSearchTimes,
+            "color": "green", "label": "drzewo"}
+    ],
+        "Wyszukiwanie elementów",
+        "liczba elementów",
+        "czas [s]"
+    )
+
+    create_table(listSizes, listDeleteTimes,
+                 treeDeleteTimes, "Usuwanie elementów")
+
+    create_chart([
+        {"xdata": listSizes, "ydata": listDeleteTimes,
+            "color": "red", "label": "lista"},
+        {"xdata": treeSizes, "ydata": treeDeleteTimes,
+            "color": "green", "label": "drzewo"}
+    ],
+        "Usuwanie elementów",
+        "liczba elementów",
+        "czas [s]"
+    )
+
+    # create_chart([
+    #     {"xdata": listSizes, "ydata": listDeleteTimes,
+    #         "color": "red", "label": "lista"},
+    #     {"xdata": treeSizes, "ydata": treeDeleteTimes,
+    #         "color": "green", "label": "drzewo"}
+    # ],
+    #     "Usuwanie elementów log",
+    #     "liczba elementów",
+    #     "czas [s]",
+    #     "log",
+    #     2
+    # )
+
+
+measure()
+# tree
+# root = treeTools.construct_node_tree([2, 5, 2, 1, 7, 9, 3, 4, 6, 8])
+# foundTreeItem = treeTools.search(root, 4)
+# print(f"found item in tree {foundTreeItem}")
+
+# print("Inorder traversal:")
+# treeTools.inorder(root)
+# print()
+
+# print("Postorder traversal:")
+# treeTools.postorder(root)
+# print()
+
+# print("Preorder traversal:")
+# treeTools.preorder(root)
+# print()
