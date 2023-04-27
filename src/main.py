@@ -5,6 +5,7 @@ from time import perf_counter
 import matplotlib.pyplot as plotter
 from datetime import datetime
 from tabulate import tabulate
+import os
 
 REPEAT_COUNT = 10
 SIZES_TO_MEASURE = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
@@ -87,9 +88,11 @@ def create_chart(dataArr, title, xlabel, ylabel, yscale="linear", base=None):
     plotter.legend()
     now_time = datetime.now()
 
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, f"../report/{title}_chart_{now_time}.png")
+
     try:
-        plotter.savefig(
-            f"{title}_chart_{now_time}.png")
+        plotter.savefig(filename)
     except FileExistsError:
         pass
     plotter.close(None)
@@ -97,7 +100,12 @@ def create_chart(dataArr, title, xlabel, ylabel, yscale="linear", base=None):
 
 def create_table(sizes, listTimes, treeTimes, title):
     now_time = datetime.now()
-    with open(f"{title}_table_{now_time}_.txt", 'w') as f:
+
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(
+        dirname, f"../report/{title}_table_{now_time}_.txt")
+
+    with open(filename, 'w') as f:
         table = [["n", "list", "bst"]]
         for i in range(len(sizes)):
             table.append([round(sizes[i], 8), round(
