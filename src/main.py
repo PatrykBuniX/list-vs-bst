@@ -219,7 +219,7 @@ def measure_bst_vs_avl_heights():
     plotter.bar(br2, bstHeights, color='green',
                 width=barWidth, label='BST')
 
-    plotter.title("Porównanie wysokość BST i AVL")
+    plotter.title("Porównanie wysokości BST i AVL")
     plotter.xlabel('Liczba elementów')
     plotter.ylabel('Wysokość drzewa')
     plotter.xticks([r + barWidth for r in range(len(avlHeights))],
