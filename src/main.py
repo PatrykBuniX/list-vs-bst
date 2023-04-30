@@ -92,7 +92,7 @@ def create_chart(dataArr, title, xlabel, ylabel, yscale="linear", base=None):
 
     dirname = os.path.dirname(__file__)
     filename = os.path.join(
-        dirname, f"../report/bst-list/{title}_chart_{now_time}.png")
+        dirname, f"../report/bst-list/{title}_{yscale}_chart_{now_time}.png")
 
     try:
         plotter.savefig(filename)
@@ -137,7 +137,18 @@ def measure_list_vs_bst():
     ],
         "Tworzenie struktury",
         "liczba elementów",
-        "czas [s]"
+        "czas [s]",
+    )
+    create_chart([
+        {"xdata": listSizes, "ydata": listCreationTimes,
+            "color": "red", "label": "lista"},
+        {"xdata": treeSizes, "ydata": treeCreationTimes,
+            "color": "green", "label": "drzewo"}
+    ],
+        "Tworzenie struktury",
+        "liczba elementów",
+        "czas [s]",
+        "log"
     )
 
     create_table(listSizes, listSearchTimes,
@@ -150,7 +161,18 @@ def measure_list_vs_bst():
     ],
         "Wyszukiwanie elementów",
         "liczba elementów",
-        "czas [s]"
+        "czas [s]",
+    )
+    create_chart([
+        {"xdata": listSizes, "ydata": listSearchTimes,
+            "color": "red", "label": "lista"},
+        {"xdata": treeSizes, "ydata": treeSearchTimes,
+            "color": "green", "label": "drzewo"}
+    ],
+        "Wyszukiwanie elementów",
+        "liczba elementów",
+        "czas [s]",
+        "log"
     )
 
     create_table(listSizes, listDeleteTimes,
@@ -164,21 +186,19 @@ def measure_list_vs_bst():
     ],
         "Usuwanie elementów",
         "liczba elementów",
-        "czas [s]"
+        "czas [s]",
     )
-
-    # create_chart([
-    #     {"xdata": listSizes, "ydata": listDeleteTimes,
-    #         "color": "red", "label": "lista"},
-    #     {"xdata": treeSizes, "ydata": treeDeleteTimes,
-    #         "color": "green", "label": "drzewo"}
-    # ],
-    #     "Usuwanie elementów log",
-    #     "liczba elementów",
-    #     "czas [s]",
-    #     "log",
-    #     2
-    # )
+    create_chart([
+        {"xdata": listSizes, "ydata": listDeleteTimes,
+            "color": "red", "label": "lista"},
+        {"xdata": treeSizes, "ydata": treeDeleteTimes,
+            "color": "green", "label": "drzewo"}
+    ],
+        "Usuwanie elementów",
+        "liczba elementów",
+        "czas [s]",
+        "log"
+    )
 
 
 def measure_bst_vs_avl_heights():
