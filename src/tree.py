@@ -105,3 +105,24 @@ def preorder(root):
         print(root.value, end=' ')
         preorder(root.left)
         preorder(root.right)
+
+
+def __get_level_util(node, value, initialLevel):
+    if (node == None):
+        return 0
+
+    if (node.value == value):
+        return initialLevel
+
+    downLevel = __get_level_util(node.left,
+                                 value, initialLevel + 1)
+    if (downLevel != 0):
+        return downLevel
+
+    downLevel = __get_level_util(node.right,
+                                 value, initialLevel + 1)
+    return downLevel
+
+
+def get_level(node, value):
+    return __get_level_util(node, value, 1)

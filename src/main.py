@@ -14,6 +14,16 @@ SIZES_TO_MEASURE = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
                     10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000]
 
 
+exampleArr = [10, 7, 18, 2, 9, 13, 4, 11, 15, 5, 17]
+exampleBst = treeTools.construct_bst_tree(exampleArr)
+print("Preorder traversal of the constructed BST")
+treeTools.postorder(exampleBst)
+exampleHeight = treeTools.get_height(exampleBst)
+print(f"\nHeight of the constructed BST: {exampleHeight}")
+exampleLevel = treeTools.get_level(exampleBst, 9)
+print(f"Level of 9: {exampleLevel}")
+
+
 def prepare_data(sizesToMeasure=SIZES_TO_MEASURE, repeatCount=REPEAT_COUNT):
     data = {}
     for size in sizesToMeasure:
@@ -272,5 +282,5 @@ def measure_bst_vs_avl_heights():
         f.close()
 
 
-measure_list_vs_bst()
-measure_bst_vs_avl_heights()
+# measure_list_vs_bst()
+# measure_bst_vs_avl_heights()
